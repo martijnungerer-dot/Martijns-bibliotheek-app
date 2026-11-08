@@ -1,0 +1,823 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>MeerLezen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Lexend:wght@400;500;600&display=swap">
+<style>
+/* Layout: telefoon-eerst prentenboek-app in staande stand; grote tikvlakken, de kaften dragen de kleur, planken van hout. Breder scherm = meer kolommen */
+:root{
+  --paper:#EAF0F5;
+  --card:#FFFFFF;
+  --ink:#1F2440;
+  --muted:#59607D;
+  --line:#D3DCE6;
+  --sun:#F5B700;
+  --sea:#1F8A93;
+  --rose:#E8607A;
+  --indigo:#3D4BA8;
+  --night:#1F2440;
+  --wood:#D8C3A0;
+  --wood-dark:#B89B70;
+  --help:#FFF4D6;
+  --help-line:#F2C94C;
+  --f-display:'Baloo 2','Trebuchet MS',system-ui,sans-serif;
+  --f-body:'Lexend',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:light;
+}
+html,body{min-height:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;-webkit-tap-highlight-color:transparent;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--sea);outline-offset:3px}
+h1,h2{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.1}
+h1{font-weight:800;font-size:clamp(1.85rem,7.5vw,2.9rem)}
+h2{font-weight:800;font-size:1.3rem}
+p{margin:0}
+.wrap{max-width:1100px;margin:0 auto}
+
+/* Kopbalk */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--paper);display:flex;align-items:center;gap:12px;padding-block:10px;border-bottom:2px solid var(--line)}
+.logo{display:flex;align-items:center;gap:8px;background:none;border:0;cursor:pointer;padding:4px 0;font-family:var(--f-display);font-weight:800;font-size:1.45rem;color:var(--ink)}
+.logo svg{width:28px;height:28px;color:var(--sea)}
+.proto{margin-left:auto;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--muted);border:1.5px solid var(--line);border-radius:99px;padding:3px 10px;background:var(--card)}
+main{padding-block:22px 8px;display:flex;flex-direction:column;gap:34px}
+.eyebrow{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--muted);margin-bottom:6px}
+
+/* Keuzes */
+.choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}
+.choice{min-height:108px;border:0;border-radius:22px;padding:16px;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;text-align:left;
+  font-family:var(--f-display);font-weight:800;font-size:1.2rem;line-height:1.1;cursor:pointer;color:#fff;box-shadow:0 5px 0 rgba(31,36,64,.22);transition:transform .1s,box-shadow .1s}
+.choice:active,.scanbtn:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(31,36,64,.22)}
+.choice svg{width:36px;height:36px}
+.c-span{background:var(--indigo)}.c-grap{background:var(--sun);color:var(--ink)}.c-verr{background:var(--rose)}.c-zoek{background:#7B4FB5}
+.scanbtn{grid-column:1/-1;display:flex;align-items:center;gap:14px;border:0;border-radius:22px;padding:16px 18px;background:var(--night);color:#fff;cursor:pointer;text-align:left;
+  font-family:var(--f-display);font-weight:800;font-size:1.2rem;line-height:1.1;box-shadow:0 5px 0 rgba(31,36,64,.3);transition:transform .1s,box-shadow .1s}
+.scanbtn svg{width:34px;height:34px;flex:none;color:var(--sun)}
+.scanbtn small{display:block;font-family:var(--f-body);font-weight:400;font-size:.8rem;opacity:.75;margin-top:2px}
+
+/* Kaften */
+.cover{position:relative;flex:none;width:var(--w,112px);aspect-ratio:2/3;max-width:100%;border:0;border-radius:4px 10px 10px 4px;background:var(--c);color:var(--ci,#fff);
+  padding:12px 10px 10px 16px;display:flex;flex-direction:column;justify-content:space-between;text-align:left;cursor:pointer;overflow:hidden;
+  box-shadow:0 10px 14px -8px rgba(31,36,64,.55),inset 7px 0 0 rgba(0,0,0,.14);transition:transform .15s}
+.cover:hover{transform:translateY(-5px) rotate(-1.2deg)}
+.cover .pat{position:absolute;inset:0;pointer-events:none}
+.p0{background:radial-gradient(circle at 18% 82%,rgba(255,255,255,.2) 0 18%,transparent 19%),radial-gradient(circle at 86% 28%,rgba(255,255,255,.14) 0 12%,transparent 13%)}
+.p1{background:repeating-linear-gradient(135deg,rgba(255,255,255,.11) 0 8px,transparent 8px 20px)}
+.p2{background:radial-gradient(circle at 72% 74%,rgba(255,255,255,.24) 0 34%,transparent 35%)}
+.p3{background:linear-gradient(transparent 60%,rgba(0,0,0,.15) 60% 68%,transparent 68%)}
+.ct{position:relative;font-family:var(--f-display);font-weight:800;font-size:calc(var(--w,112px) * .13);line-height:1.04;overflow-wrap:break-word;hyphens:auto}
+.cover.long .ct{font-size:calc(var(--w,112px) * .108)}
+.ca{position:relative;font-size:calc(var(--w,112px) * .072);opacity:.88;padding-left:24px;line-height:1.2}
+.stk{position:absolute;left:10px;bottom:10px;width:16px;height:16px;border-radius:50%;background:var(--g);box-shadow:0 0 0 3px #fff}
+.big{--w:170px}
+
+/* Planken */
+.shelf-head{display:flex;align-items:baseline;gap:4px 12px;flex-wrap:wrap;margin-bottom:10px}
+.shelf-head p{color:var(--muted);font-size:.9rem}
+.row{display:flex;gap:14px;overflow-x:auto;padding:8px 6px 0;margin:0 -6px;scroll-snap-type:x proximity;align-items:flex-end;scrollbar-width:none}
+.row::-webkit-scrollbar{display:none}
+.row .cover{scroll-snap-align:start}
+.plank{height:14px;border-radius:3px;background:linear-gradient(var(--wood) 0 9px,var(--wood-dark) 9px);box-shadow:0 6px 10px -6px rgba(31,36,64,.4)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:22px 14px}
+.grid .cover{--w:100%}
+.grid .ct{font-size:.95rem}.grid .ca{font-size:.66rem}
+
+/* Groepsdoel */
+.goal{background:var(--card);border-radius:22px;padding:18px 20px;display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
+.goal .num{font-family:var(--f-display);font-weight:800;font-size:3rem;line-height:1;color:var(--sea);font-variant-numeric:tabular-nums}
+.meter{height:18px;border-radius:99px;background:var(--paper);overflow:hidden;margin-top:8px}
+.meter i{display:block;height:100%;width:0;border-radius:99px;background:repeating-linear-gradient(-45deg,var(--sun) 0 12px,#F7C933 12px 24px);transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
+.goal small{color:var(--muted);display:block;margin-top:4px}
+.ex{font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border:1.5px dashed var(--line);border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:middle;white-space:nowrap}
+
+/* Genres */
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.pill{display:flex;align-items:center;gap:8px;background:var(--card);border:2px solid var(--line);border-radius:99px;padding:8px 14px;cursor:pointer;font-weight:500;font-size:.92rem}
+.pill i{width:14px;height:14px;border-radius:50%;background:var(--c)}
+
+/* Algemeen */
+.back{background:none;border:0;cursor:pointer;color:var(--sea);font-weight:600;padding:8px 0;margin-bottom:6px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:2px solid var(--line);background:var(--card);border-radius:16px;padding:14px 20px;font-weight:600;cursor:pointer;text-align:center}
+.btn.primary{background:var(--sea);border-color:var(--sea);color:#fff}
+.btn.dark{background:var(--night);border-color:var(--night);color:#fff}
+.btn svg{width:22px;height:22px}
+.lead{color:var(--muted);margin-top:8px;max-width:60ch}
+
+/* Zoeken */
+.sform{display:flex;gap:8px;margin-top:16px}
+.sform input{flex:1;min-width:0;font:inherit;font-size:1.1rem;padding:14px 16px;border-radius:16px;border:3px solid var(--line);background:var(--card);color:var(--ink)}
+.sform input:focus{outline:none;border-color:var(--sea)}
+.sform button{border:0;border-radius:16px;padding:0 18px;background:var(--sea);color:#fff;font-weight:600;cursor:pointer}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{background:var(--card);border:2px solid var(--line);border-radius:99px;padding:6px 12px;cursor:pointer;font-size:.92rem}
+.privacy{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:.82rem;margin-top:12px}
+.privacy svg{width:16px;height:16px;flex:none}
+#results{display:flex;flex-direction:column;gap:18px;margin-top:22px}
+.help{background:var(--help);border:2px solid var(--help-line);border-radius:18px;padding:14px 16px;max-width:65ch}
+.help .num-inline{font-weight:600;white-space:nowrap;user-select:all}
+.help.strong{background:var(--card);border-color:var(--sea);padding:20px;display:flex;flex-direction:column;gap:10px}
+.phone{font-family:var(--f-display);font-weight:800;font-size:2.3rem;line-height:1;color:var(--sea);user-select:all;font-variant-numeric:tabular-nums}
+.help small{color:var(--muted)}
+.empty{color:var(--muted)}
+
+/* Boek */
+.detail{display:grid;grid-template-columns:minmax(0,1fr);gap:22px;align-items:start}
+.detail .dcover{justify-self:center}
+.dinfo{display:flex;flex-direction:column;gap:12px;max-width:62ch;min-width:0}
+.by{color:var(--muted);font-size:1.02rem}
+.kw{display:flex;flex-wrap:wrap;gap:8px}
+.kw span{background:var(--card);border:2px solid var(--line);border-radius:10px;padding:4px 12px;font-size:.88rem}
+.where{display:flex;align-items:flex-start;gap:8px;color:var(--muted);font-size:.92rem}
+.where svg{width:18px;height:18px;flex:none;margin-top:2px}
+.status{display:inline-block;font-size:.78rem;font-weight:600;border-radius:99px;padding:1px 10px;background:#DDF3E6;color:#1C6B43}
+.status.out{background:#FCE3E3;color:#9B2C2C}
+.rating{background:var(--card);border-radius:20px;padding:16px 18px;display:flex;flex-direction:column;gap:14px;margin-top:4px}
+.rq p{font-weight:600;margin-bottom:8px}
+.faces{display:flex;gap:14px}
+.face{width:60px;height:60px;border-radius:50%;border:3px solid transparent;background:none;padding:0;cursor:pointer;transition:transform .15s}
+.face svg{width:100%;height:100%}
+.face[aria-pressed="true"]{border-color:var(--ink);transform:scale(1.1)}
+.rsum{color:var(--muted);font-size:.88rem}
+
+/* Scannen */
+.scanbox{margin-top:18px;background:var(--card);border-radius:24px;padding:20px;display:flex;flex-direction:column;gap:14px;align-items:stretch}
+.viewfinder{position:relative;aspect-ratio:4/3;max-width:100%;border-radius:18px;background:var(--night);overflow:hidden;display:grid;place-items:center}
+.viewfinder img{width:100%;height:100%;object-fit:cover}
+.viewfinder .frame{position:absolute;inset:18% 12%;border:3px dashed rgba(255,255,255,.6);border-radius:12px}
+.viewfinder .beam{position:absolute;left:12%;right:12%;top:50%;height:3px;background:var(--sun);box-shadow:0 0 12px var(--sun);animation:beam 1.6s ease-in-out infinite alternate}
+.viewfinder p{position:relative;color:#fff;opacity:.85;font-size:.9rem;text-align:center;padding:0 24px}
+@keyframes beam{from{transform:translateY(-60px)}to{transform:translateY(60px)}}
+.file-btn{position:relative;overflow:hidden}
+.file-btn input{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:0}
+.scanmsg{display:flex;flex-direction:column;gap:12px}
+.scanmsg .found{display:flex;gap:16px;align-items:flex-start}
+.scanmsg .found .cover{--w:96px}
+.claude-card{border:2px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:8px}
+.claude-card .tag{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--sea)}
+.claude-card h3{font-family:var(--f-display);font-weight:800;font-size:1.35rem;line-height:1.1;margin:0}
+.muted{color:var(--muted);font-size:.88rem}
+.demo{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+
+/* Verras me */
+.stage{position:relative;display:grid;place-items:center;min-height:300px}
+.gift{position:relative;width:200px;height:175px;animation:wiggle 2.6s ease-in-out infinite;transition:transform .5s .15s,opacity .5s .15s}
+.gift .box{position:absolute;bottom:0;left:10px;right:10px;height:128px;border-radius:12px;background:radial-gradient(circle,rgba(255,255,255,.35) 0 3px,transparent 4px) 0 0/22px 22px,var(--rose)}
+.gift .lid{position:absolute;top:20px;left:0;right:0;height:42px;border-radius:12px;background:#D64C68;transition:transform .6s cubic-bezier(.3,1.4,.5,1),opacity .6s;z-index:2}
+.gift .rib{position:absolute;left:50%;width:26px;margin-left:-13px;top:20px;bottom:0;background:var(--sun);z-index:3}
+.gift .bow{position:absolute;left:50%;top:-6px;width:0;z-index:4}
+.gift .bow::before,.gift .bow::after{content:"";position:absolute;top:0;width:42px;height:28px;border:8px solid var(--sun);border-radius:50%}
+.gift .bow::before{right:2px;transform:rotate(-18deg)}.gift .bow::after{left:2px;transform:rotate(18deg)}
+.reveal{position:absolute;left:50%;top:50%;transform:translate(-50%,-40%) scale(.3);opacity:0;transition:transform .6s .3s cubic-bezier(.3,1.4,.5,1),opacity .4s .3s;pointer-events:none}
+.reveal .cover{--w:160px}
+.stage.open .gift{animation:none;transform:translateY(60px) scale(.8);opacity:0}
+.stage.open .lid{transform:translateY(-150px) rotate(-28deg);opacity:0}
+.stage.open .reveal{transform:translate(-50%,-50%) scale(1);opacity:1;pointer-events:auto}
+.clues{display:flex;justify-content:center;flex-wrap:wrap;gap:8px}
+.clues span{font-family:var(--f-display);font-weight:800;font-size:1.15rem;background:var(--card);border-radius:14px;padding:6px 14px;box-shadow:0 3px 0 var(--line)}
+.gactions{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-top:20px}
+@keyframes wiggle{0%,78%,100%{transform:rotate(0)}83%{transform:rotate(-5deg)}88%{transform:rotate(5deg)}93%{transform:rotate(-3deg)}}
+
+/* Leesmaatjes Toet & Bas */
+.ava{width:56px;height:56px;flex:none;display:block}
+.ava svg{width:100%;height:100%;overflow:visible;display:block}
+.ava.sm{width:34px;height:34px}
+.ava .bob{animation:bob 2.6s ease-in-out infinite;transform-box:fill-box}
+.owl .lids{transform-box:fill-box;transform-origin:center top;transform:scaleY(0);animation:blink 4.5s infinite}
+.worm .body{animation:wig 1.9s ease-in-out infinite;transform-box:fill-box;transform-origin:center bottom}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes blink{0%,93%,100%{transform:scaleY(0)}96%{transform:scaleY(1)}}
+@keyframes wig{0%,100%{transform:skewX(0)}50%{transform:skewX(-7deg)}}
+.duo{grid-column:1/-1;display:flex;align-items:center;gap:14px;background:var(--card);border:2px solid var(--line);border-radius:22px;padding:10px 16px;cursor:pointer;text-align:left}
+.duo .avas{display:flex;flex:none}.duo .ava{width:50px;height:50px}.duo .ava+.ava{margin-left:-4px}
+.duo-t{display:flex;flex-direction:column;line-height:1.25;min-width:0}.duo-t strong{font-family:var(--f-display);font-weight:800;font-size:1.15rem}.duo-t span{color:var(--muted);font-size:.9rem}
+.chat{display:flex;flex-direction:column;gap:12px;margin-top:18px}
+.line{display:flex;gap:10px;align-items:flex-end;animation:rise .3s ease-out both}
+.line .bubble{background:var(--card);border-radius:18px 18px 18px 4px;padding:10px 14px;max-width:min(82%,520px);box-shadow:0 2px 0 var(--line);min-width:0}
+.line .bubble b{display:block;font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;color:var(--pc,var(--muted));margin-bottom:2px}
+.line.kid{justify-content:flex-end}
+.line.kid .bubble{background:var(--sea);color:#fff;border-radius:18px 18px 4px 18px;box-shadow:none}
+.dots{display:inline-flex;gap:4px;padding:6px 2px}.dots i{width:7px;height:7px;border-radius:50%;background:var(--muted);opacity:.5;animation:dot 1s infinite}.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes dot{0%,100%{transform:translateY(0);opacity:.35}50%{transform:translateY(-3px);opacity:.9}}
+.say{border:0;background:none;padding:2px;margin-left:2px;cursor:pointer;color:var(--muted);vertical-align:-4px}
+.say svg{width:18px;height:18px}
+.opts{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;margin-top:14px}
+.opt{border:2px solid var(--sea);background:var(--card);color:var(--sea);border-radius:99px;padding:10px 16px;font-weight:600;cursor:pointer;animation:rise .3s ease-out both}
+.picks{flex-basis:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.picks.one{grid-template-columns:minmax(0,1fr);max-width:260px;margin:0 auto}
+.pick{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;animation:rise .35s ease-out both}
+.pick-h{display:flex;align-items:center;gap:6px;font-weight:600;font-size:.88rem;color:var(--pc)}
+.pick .cover{--w:100px}
+.pick .why{font-size:.85rem;color:var(--muted)}
+.again{flex-basis:100%;display:flex;justify-content:center;margin-top:6px}
+.bookpal .line .bubble{max-width:100%}
+.help.pal{display:flex;gap:12px;align-items:flex-start}
+
+/* Binnenkomen */
+.enter .cover{animation:pop .55s calc(var(--i,0) * 45ms) cubic-bezier(.3,1.4,.5,1) both}
+.enter .choice,.enter .scanbtn,.enter .duo{animation:rise .45s calc(var(--i,0) * 70ms) ease-out both}
+@keyframes pop{from{transform:translateY(-60px) scale(.5) rotate(-8deg);opacity:0}}
+@keyframes rise{from{transform:translateY(16px);opacity:0}}
+
+.intro{position:fixed;inset:0;z-index:50;background:var(--night);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;perspective:1200px;transition:opacity .4s;cursor:pointer;overflow:hidden;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.intro.out{opacity:0}
+.book3d{position:relative;width:150px;height:205px;transform-style:preserve-3d;opacity:0}
+.pages{position:absolute;inset:0;border-radius:4px 12px 12px 4px;background:repeating-linear-gradient(#fff 0 22px,#EEF1F5 22px 23px);display:grid;place-items:center;box-shadow:0 20px 40px rgba(0,0,0,.4)}
+.pages span{font-family:var(--f-display);font-weight:800;font-size:1.2rem;color:var(--ink);opacity:0;text-align:center;line-height:1.1}
+.front{position:absolute;inset:0;border-radius:4px 12px 12px 4px;background:var(--sun);color:var(--ink);transform-origin:left center;backface-visibility:hidden;display:grid;place-items:center;
+  font-family:var(--f-display);font-weight:800;font-size:1.7rem;box-shadow:inset 9px 0 0 rgba(0,0,0,.12)}
+.intro-greet{font-family:var(--f-display);font-weight:800;font-size:clamp(1.5rem,6vw,2.3rem);opacity:0;text-align:center}
+.skip{position:absolute;bottom:calc(24px + env(safe-area-inset-bottom,0px));font-size:.85rem;opacity:.55}
+.play .book3d{animation:bookIn .5s ease-out forwards}
+.play .front{animation:openCover .9s .45s cubic-bezier(.6,.05,.3,1) forwards}
+.play .pages span{animation:fadeIn .4s 1.05s forwards}
+.play .intro-greet{animation:fadeUp .5s 1.15s forwards}
+@keyframes bookIn{from{transform:scale(.6) translateY(30px);opacity:0}to{transform:none;opacity:1}}
+@keyframes openCover{to{transform:rotateY(-165deg)}}
+@keyframes fadeIn{to{opacity:1}}
+@keyframes fadeUp{from{transform:translateY(10px)}to{transform:none;opacity:1}}
+.fx{position:absolute;inset:0;pointer-events:none}
+.leaf{position:absolute;top:-30px;width:18px;height:18px;border-radius:0 80% 0 80%;background:var(--lc);animation:fall var(--d) linear var(--dl) forwards}
+.flake{position:absolute;top:-20px;width:8px;height:8px;border-radius:50%;background:#fff;opacity:.85;animation:fall var(--d) linear var(--dl) forwards}
+@keyframes fall{to{transform:translate(var(--x),110vh) rotate(540deg)}}
+
+/* Voettekst + melding */
+footer{display:flex;flex-direction:column;gap:4px;color:var(--muted);font-size:.78rem;padding-block:28px calc(28px + env(safe-area-inset-bottom,0px));border-top:2px solid var(--line);margin-top:36px}
+.linkbtn{background:none;border:0;padding:4px 0;color:var(--sea);font-weight:600;cursor:pointer;text-decoration:underline;align-self:flex-start}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:#fff;border-radius:14px;padding:12px 18px;opacity:0;transition:.25s;z-index:40;width:max-content;max-width:calc(100vw - 32px);text-align:center;pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* Breder scherm (tablet, laptop) */
+@media (min-width:760px){
+  h2{font-size:1.45rem}
+  .choices{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+  .choice{min-height:150px;font-size:1.4rem;padding:20px}
+  .choice svg{width:42px;height:42px}
+  .cover{--w:132px}
+  .row{gap:18px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:24px 18px}
+  .grid .ct{font-size:1.05rem}.grid .ca{font-size:.72rem}
+  .goal{grid-template-columns:auto minmax(0,1fr);gap:8px 28px;align-items:center;padding:22px 24px}
+  .goal .num{font-size:3.4rem}
+  .detail{grid-template-columns:240px minmax(0,1fr);gap:36px}
+  .detail .dcover{justify-self:start}
+  .big{--w:220px}
+  .scanbox{max-width:560px}
+  footer{flex-direction:row;flex-wrap:wrap;gap:6px 16px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap" lang="nl">
+  <header class="bar">
+    <button class="logo" data-act="home" aria-label="Naar het begin">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5C5.5 4 9 4 12 6c3-2 6.5-2 9-.5V19c-2.5-1.5-6-1.5-9 .5-3-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></svg>
+      MeerLezen
+    </button>
+    <span class="proto">Prototype</span>
+  </header>
+  <main id="view" aria-live="polite"></main>
+  <footer>
+    <span>Prototype. Echte titels; kaften, tellingen en beoordelingen zijn voorbeelden.</span>
+    <span>Zoekopdrachten en foto's worden niet bewaard.</span>
+    <span>Toet en Bas zeggen alleen zinnen die vooraf zijn geschreven.</span>
+    <span>Na 60 seconden niets doen begint de app opnieuw.</span>
+    <button class="linkbtn" data-act="replay">Opening opnieuw bekijken</button>
+  </footer>
+</div>
+
+<div class="intro" id="intro" hidden>
+  <div class="fx" id="fx"></div>
+  <div class="book3d">
+    <div class="pages"><span>Welkom in<br>de bieb!</span></div>
+    <div class="front">MeerLezen</div>
+  </div>
+  <p class="intro-greet" id="introGreet"></p>
+  <p class="skip">Tik om verder te gaan</p>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const GENRES={
+  spannend:{label:'Spannend',color:'#3D4BA8',sticker:'blauwe'},
+  grappig:{label:'Grappig',color:'#F5B700',sticker:'gele'},
+  gevoel:{label:'Over het leven',color:'#E8607A',sticker:'roze'},
+  avontuur:{label:'Avontuur',color:'#1F8A93',sticker:'turquoise'},
+  fantasie:{label:'Fantasie',color:'#7B4FB5',sticker:'paarse'},
+  dieren:{label:'Dieren',color:'#2F8F5B',sticker:'groene'},
+  strip:{label:'Strips & tekeningen',color:'#E2552B',sticker:'oranje'}
+};
+/* Echte, populaire kinderboeken. Kaften zijn getekende vervangers; tellingen zijn voorbeelden. */
+const BOOKS=[
+ {id:'verkleinstraal',plaatjes:1,why:'Er komt een verkleinstraal in voor. Wat zou jij klein maken?',t:'Rutger, Thomas en Paco: De verkleinstraal',ct:'De verkleinstraal',a:'Rutger Vink & Thomas van Grinsven',g:['grappig','avontuur'],groep:'4–6',c:'#2C9AD6',p:0,kw:['verkleinstraal','vrienden','avontuur'],cs:['grappig','vriendschap'],nieuw:1,pop:44,likes:39,uit:1,s:'Het vijfde avontuur van Rutger, Thomas en Paco. Winnaar van de Kinderjury 2026 (7 tot en met 9 jaar).'},
+ {id:'rugzak',plaatjes:1,why:'Er zit iets in die rugzak. Ik zeg lekker niet wat!',t:'Een rugzak vol',a:'Pieter Koolwijk',g:['spannend','avontuur'],groep:'6–8',c:'#8A5A2B',p:2,isbn:'9789047716365',kw:['treinreis','oude rugzak','zakmes'],cs:['mysterie','moed'],nieuw:1,pop:36,likes:31,s:'Obi moet alleen naar zijn moeder, met een enorme oude rugzak op zijn rug. Dan hoort hij iets in die rugzak… Winnaar van de Kinderjury 2026 (10 tot en met 12 jaar).'},
+ {id:'glazenwasser',why:'Schilderijen die tot leven komen, in een echt museum.',t:'De glazenwasser van het Rijksmuseum',a:'Astrid Sy',g:['spannend','avontuur'],groep:'6–8',c:'#23305E',p:1,kw:['De Nachtwacht','tijdreizen','raadsels'],cs:['mysterie','kunst','verdriet'],nieuw:1,pop:22,likes:20,s:'Freddie woont in een torenkamertje van het Rijksmuseum en lapt er de ramen sinds zijn vader overleden is. Op een nacht ziet hij vreemde mannen bij De Nachtwacht.'},
+ {id:'rikjesper',why:'Naar de maan! Neem je een boterham mee?',t:'Rik & Jesper gaan naar de maan',a:'Rik Kleeven & Jesper Weijs',g:['grappig','avontuur'],groep:'4–6',c:'#5B3FA8',p:3,kw:['maan','raket','vrienden'],cs:['grappig','ruimte','vriendschap'],nieuw:1,pop:27,likes:23,s:'Rik en Jesper gaan naar de maan. Genomineerd voor de Kinderjury 2026 (7 tot en met 9 jaar).'},
+ {id:'gips',why:'Fitz is heel boos. En toch wordt het een bijzondere dag.',t:'Gips',a:'Anna Woltz',g:['gevoel'],groep:'6–8',c:'#E9EEF2',ci:'#1F2440',p:2,kw:['ziekenhuis','één dag','boos zijn'],cs:['scheiding'],pop:12,likes:11,s:'Fitz is woedend omdat haar ouders gaan scheiden. Dan moet ze een hele dag in het ziekenhuis doorbrengen.'},
+ {id:'wonder',why:'August is dapper. Na dit boek kijk je anders naar anderen.',t:'Wonder',a:'R.J. Palacio',g:['gevoel'],groep:'6–8',c:'#2D6FB7',p:0,kw:['nieuwe school','anders zijn','vriendschap'],cs:['pesten','nieuw','vriendschap','moed'],pop:25,likes:24,s:'August ziet er anders uit dan andere kinderen. Voor het eerst gaat hij naar een gewone school.'},
+ {id:'muts',plaatjes:1,why:'Nikki tekent alles wat ze meemaakt. Lachen gegarandeerd.',t:'Dagboek van een muts',a:'Rachel Renée Russell',g:['grappig','strip'],groep:'6–8',c:'#E85A9B',p:1,kw:['dagboek','nieuwe school','tekeningen'],cs:['grappig','nieuw','pesten','dagboek'],pop:41,likes:37,uit:1,s:'Nikki zit op een nieuwe school en schrijft en tekent alles op in haar dagboek.'},
+ {id:'loser',plaatjes:1,why:'Greg denkt dat hij heel slim is. Daarom is het zo grappig.',t:'Het leven van een Loser',a:'Jeff Kinney',g:['grappig','strip'],groep:'5–8',c:'#E8C547',ci:'#1F2440',p:3,kw:['dagboek','school','tekeningen'],cs:['grappig','strip','dagboek'],pop:47,likes:42,s:'Greg houdt een dagboek bij over school, zijn familie en zijn vriend Rowley. Vol tekeningen.'},
+ {id:'boomhut',plaatjes:1,why:'Een boomhut vol gekke uitvindingen. Ik wil er wonen!',t:'De waanzinnige boomhut van 13 verdiepingen',ct:'De waanzinnige boomhut',a:'Andy Griffiths & Terry Denton',g:['grappig','strip'],groep:'4–6',c:'#3FA34D',p:2,kw:['boomhut','gekke uitvindingen','tekeningen'],cs:['grappig','techniek','strip'],pop:39,likes:33,s:'Andy en Terry wonen in een boomhut vol gekke uitvindingen. En die boomhut wordt steeds hoger.'},
+ {id:'dolfje',plaatjes:1,why:'Een weerwolf die ook gewoon een jongen is. Griezelig én lief.',t:'Dolfje Weerwolfje',a:'Paul van Loon',g:['spannend','fantasie'],groep:'4–6',c:'#2A2F4F',p:0,kw:['weerwolf','volle maan','geheim'],cs:['eng','fantasie','mysterie'],pop:30,likes:27,s:'Op zijn zevende verjaardag verandert Dolfje bij volle maan in een weerwolf.'},
+ {id:'dummie',why:'Een mummie als huisgenoot. Daar komt vast gedoe van!',t:'Dummie de mummie',a:'Tosca Menten',g:['grappig','spannend'],groep:'4–6',c:'#D9A441',ci:'#1F2440',p:1,kw:['mummie','Egypte','geheim'],cs:['grappig','eng','mysterie'],pop:33,likes:29,s:'Goos krijgt er een bijzondere huisgenoot bij: Dummie, een echte mummie uit het oude Egypte.'},
+ {id:'superjuffie',plaatjes:1,why:'Een juf met een cape. Hoe gaaf is dat?',t:'Superjuffie',a:'Janneke Schotveld',g:['grappig'],groep:'3–5',c:'#D8433B',p:3,kw:['juf','superkracht','cape'],cs:['grappig','moed'],pop:18,likes:16,s:'Een gewone juf met een geheim: als het nodig is, wordt ze Superjuffie.'},
+ {id:'tess',why:'Een eiland, een vakantie en een geheim plan. Echt mooi.',t:'Mijn bijzonder rare week met Tess',a:'Anna Woltz',g:['gevoel'],groep:'6–8',c:'#F2B84B',ci:'#1F2440',p:0,kw:['Terschelling','vakantie','geheim plan'],cs:['eenzaam','vriendschap'],pop:0,likes:0,s:'Op vakantie op Terschelling ontmoet Samuel het meisje Tess. Zij heeft een geheim plan.'},
+ {id:'kikker',plaatjes:1,why:'Kikker is verliefd. Mooie plaatjes en heel lief.',t:'Kikker is verliefd',a:'Max Velthuijs',g:['dieren','gevoel'],groep:'1–3',c:'#7CC16B',ci:'#1F2440',p:2,kw:['kikker','eend','verliefd'],cs:['dieren','vriendschap'],pop:0,likes:0,s:'Kikker voelt zich zo raar. Zou hij verliefd zijn op Eend?'}
+];
+const CONCEPTS={
+  scheiding:{heavy:1,w:['gescheiden','scheiden','scheiding','uit elkaar','twee huizen','papa en mama','ouders']},
+  eenzaam:{heavy:1,w:['alleen','eenzaam','geen vrienden','niemand','buitenstaander']},
+  pesten:{heavy:1,w:['gepest','pesten','pest','uitgelachen','buitengesloten','gemeen','anders zijn']},
+  verdriet:{heavy:1,w:['verdriet','dood','overleden','doodgaan','rouw','missen','huilen','begrafenis']},
+  nieuw:{w:['nieuwe school','verhuizen','verhuisd','nieuw in de klas','nieuwe klas']},
+  vriendschap:{w:['vriend','vriendin','vriendschap','vrienden']},
+  dieren:{w:['dier','dieren','kikker','eend','hond','kat','poes']},
+  eng:{w:['eng','spook','griezel','monster','weerwolf','mummie']},
+  grappig:{w:['grappig','lachen','grap','gek','humor']},
+  moed:{w:['moed','dapper','stoer','durven','bang']},
+  mysterie:{w:['geheim','mysterie','raadsel','detective','speur','spannend']},
+  techniek:{w:['robot','techniek','uitvind']},
+  fantasie:{w:['magie','tover','draak','fantasie','sprookje']},
+  kunst:{w:['museum','kunst','schilderij','nachtwacht']},
+  ruimte:{w:['ruimte','maan','raket','sterren','planeet']},
+  dagboek:{w:['dagboek']},
+  strip:{w:['strip','plaatjes','tekeningen']}
+};
+const SIGNAL=['dood willen','dood wil','zelfmoord','niet meer leven','niet meer willen leven','mezelf pijn','pijn doen thuis','geslagen','slaan thuis','mishandel'];
+const EXAMPLES=['gescheiden ouders','alleen voelen','gepest worden','iets engs','nieuwe school','de ruimte'];
+
+const S='fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
+const ICON={
+  moon:`<svg viewBox="0 0 24 24" ${S}><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/><path d="M17 3v3M15.5 4.5h3"/></svg>`,
+  smile:`<svg viewBox="0 0 24 24" ${S}><circle cx="12" cy="12" r="9"/><path d="M8 14c1 1.6 2.4 2.4 4 2.4s3-.8 4-2.4"/><path d="M9 9.5h.01M15 9.5h.01"/></svg>`,
+  gift:`<svg viewBox="0 0 24 24" ${S}><path d="M3 9h18v4H3zM5 13v8h14v-8M12 9v12"/><path d="M12 9C10 5 6 5 6 7.5S9 9 12 9zm0 0c2-4 6-4 6-1.5S15 9 12 9z"/></svg>`,
+  search:`<svg viewBox="0 0 24 24" ${S}><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>`,
+  lock:`<svg viewBox="0 0 24 24" ${S}><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>`,
+  pin:`<svg viewBox="0 0 24 24" ${S}><path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2"/></svg>`,
+  camera:`<svg viewBox="0 0 24 24" ${S}><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/></svg>`,
+  barcode:`<svg viewBox="0 0 24 24" ${S}><path d="M4 6v12M7 6v12M10 6v12M14 6v12M16 6v12M20 6v12"/></svg>`
+};
+
+ICON.speaker=`<svg viewBox="0 0 24 24" ${S}><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>`;
+
+/* Leesmaatjes: zeggen alleen zinnen die hier vooraf zijn geschreven */
+const OWL=`<svg viewBox="0 0 64 64" class="owl" aria-hidden="true"><g class="bob"><path d="M14 19L19 7l8 9z" fill="#2E3A8C"/><path d="M50 19L45 7l-8 9z" fill="#2E3A8C"/><ellipse cx="32" cy="37" rx="20" ry="23" fill="#3D4BA8"/><ellipse cx="32" cy="45" rx="12" ry="13" fill="#8E97E0"/><path d="M27 43q2.5 2 5 0M32 48q2.5 2 5 0M27 53q2.5 2 5 0" stroke="#3D4BA8" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="24" cy="28" r="8" fill="#fff"/><circle cx="40" cy="28" r="8" fill="#fff"/><circle cx="25" cy="29" r="3.6" fill="#1F2440"/><circle cx="41" cy="29" r="3.6" fill="#1F2440"/><circle cx="26.2" cy="27.8" r="1.1" fill="#fff"/><circle cx="42.2" cy="27.8" r="1.1" fill="#fff"/><g class="lids"><rect x="15" y="19" width="18" height="18" rx="9" fill="#3D4BA8"/><rect x="31" y="19" width="18" height="18" rx="9" fill="#3D4BA8"/></g><circle cx="24" cy="28" r="9" fill="none" stroke="#F5B700" stroke-width="2"/><circle cx="40" cy="28" r="9" fill="none" stroke="#F5B700" stroke-width="2"/><path d="M29 34l3 6 3-6z" fill="#F5B700"/><path d="M25 59v3M28 59v3M36 59v3M39 59v3" stroke="#F5B700" stroke-width="2" stroke-linecap="round"/></g></svg>`;
+const WORM=`<svg viewBox="0 0 64 64" class="worm" aria-hidden="true"><g class="bob"><g class="body"><circle cx="11" cy="52" r="7" fill="#4E9A3E"/><circle cx="21" cy="50" r="8" fill="#5DA84A"/><circle cx="31" cy="47" r="8.5" fill="#6DB85A"/><circle cx="39" cy="41" r="8.5" fill="#7CC16B"/><circle cx="44" cy="29" r="13" fill="#8FD07D"/><path d="M33 21q11-14 22 0z" fill="#E2552B"/><path d="M31 21h26" stroke="#C9473F" stroke-width="2.4" stroke-linecap="round"/><circle cx="40" cy="27" r="3.4" fill="#fff"/><circle cx="49" cy="27" r="3.4" fill="#fff"/><circle cx="40.8" cy="27.6" r="1.7" fill="#1F2440"/><circle cx="49.8" cy="27.6" r="1.7" fill="#1F2440"/><path d="M39 33q5.5 5 11 0" stroke="#1F2440" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="36.5" cy="32.5" r="2" fill="#F28AB2" opacity=".75"/><circle cx="52.5" cy="32.5" r="2" fill="#F28AB2" opacity=".75"/></g></g></svg>`;
+const PALS={toet:{name:'Toet',svg:OWL,color:'#3D4BA8',pitch:.75},bas:{name:'Bas',svg:WORM,color:'#2F8F5B',pitch:1.4}};
+const canSpeak='speechSynthesis' in window;
+const PSTEPS=[
+ {id:'groep',q:()=>[['toet','Oehoe! Ik ben Toet.'],['bas','En ik ben Bas, de boekenwurm. Ik eet alleen de puntjes en de komma’s.'],['toet','Zullen we samen een boek voor je zoeken? In welke groep zit je?']],
+  opts:[['Groep 1, 2 of 3','1-3'],['Groep 4 of 5','4-5'],['Groep 6, 7 of 8','6-8']]},
+ {id:'zin',q:a=>[['bas',{'1-3':'Dan lees ik graag met je mee!','4-5':'Mooi, dan ben je al een echte lezer.','6-8':'Een grote lezer! Toet, pak de dikke boeken maar.'}[a.groep]],['toet','Waar heb je zin in?']],
+  opts:[['Iets spannends','spannend'],['Iets om te lachen','grappig'],['Iets over het echte leven','gevoel'],['Verras ons maar','any']]},
+ {id:'plaat',q:a=>({spannend:[['toet','Oehoe, spannend is mijn lievelingswoord.']],grappig:[['bas','Ja, lachen! Toet kijkt altijd zo serieus.'],['toet','Ik kijk niet serieus. Ik denk na.']],gevoel:[['toet','Boeken over het echte leven zijn soms de allermooiste.']],any:[['bas','Verrassen is mijn specialiteit.']]}[a.zin]).concat([['bas','Laatste vraag: hou je van boeken met veel plaatjes?']]),
+  opts:[['Ja, veel plaatjes','ja'],['Liever veel tekst','nee'],['Maakt niet uit','any']]}
+];
+
+const $=s=>document.querySelector(s);
+const view=$('#view');
+const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const state={view:'home',q:'',ratings:{},lastSurprise:null,photo:null};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=s=>String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+const byId=id=>BOOKS.find(b=>b.id===id);
+
+/* Claude (optioneel): leest een foto van de kaft als er geen streepjescode gevonden wordt */
+let sampleFn=null,canImages=false;
+(async()=>{try{
+  const s=await window.claude?.use?.('sample');
+  if(!s)return;
+  const lim=await s.limits().catch(()=>null);
+  sampleFn=s;canImages=!!lim?.images;
+  if(state.view==='scan'&&state.photo&&state.needsClaude)renderScanState();
+}catch(e){}})();
+
+function greeting(){const h=new Date().getHours();return (h<12?'Goedemorgen':h<18?'Goedemiddag':'Goedenavond')+', lezer!';}
+
+function cover(b,i,cls,from){
+  const g=GENRES[b.g[0]];
+  const title=b.ct||b.t;
+  return `<button class="cover ${cls||''} ${title.length>22?'long':''}" style="--c:${b.c};--ci:${b.ci||'#fff'};--g:${g.color};--i:${i||0}" data-act="book" data-v="${b.id}" ${from?`data-from="${from}"`:''} aria-label="${esc(b.t)} van ${esc(b.a)}">
+    <span class="pat p${b.p}"></span><span class="ct">${esc(title)}</span><span class="ca">${esc(b.a)}</span><span class="stk"></span></button>`;
+}
+function shelfRow(title,list,sub){
+  return `<section class="shelf"><div class="shelf-head"><h2>${title}</h2>${sub?`<p>${sub}</p>`:''}</div>
+    <div class="row">${list.map((b,i)=>cover(b,i)).join('')}</div><div class="plank"></div></section>`;
+}
+function setView(name,html,enter){
+  state.view=name;
+  view.className=enter?'enter':'';
+  view.innerHTML=html;
+  window.scrollTo(0,0);
+}
+
+function showHome(enter){
+  const choices=[
+    ['c-span','shelf','spannend',ICON.moon,'Spannend'],
+    ['c-grap','shelf','grappig',ICON.smile,'Grappig'],
+    ['c-verr','surprise','',ICON.gift,'Verras me'],
+    ['c-zoek','search','',ICON.search,'Ik zoek iets over…']
+  ].map((c,i)=>`<button class="choice ${c[0]}" style="--i:${i}" data-act="${c[1]}" data-v="${c[2]}">${c[3]}<span>${c[4]}</span></button>`).join('');
+  setView('home',`
+    <section><p class="eyebrow">${greeting()}</p><h1>Waar heb je zin in?</h1>
+      <div class="choices">${choices}
+        <button class="scanbtn" style="--i:4" data-act="scan">${ICON.camera}<span>Waar gaat dit boek over?<small>Scan een boek met de camera</small></span></button>
+        <button class="duo" style="--i:5" data-act="pals"><span class="avas"><span class="ava">${OWL}</span><span class="ava">${WORM}</span></span><span class="duo-t"><strong>Weet je het niet?</strong><span>Toet en Bas helpen je kiezen.</span></span></button>
+      </div></section>
+    ${shelfRow('Nieuw binnen',BOOKS.filter(b=>b.nieuw))}
+    <section class="goal">
+      <div class="num">68%</div>
+      <div><p><strong>van groep 6 las deze maand een boek uit</strong><span class="ex">Voorbeeld</span></p>
+        <div class="meter" aria-label="68 procent van de klas, doel 80 procent"><i id="meter"></i></div>
+        <small>Bij 80% van de klas: voorleesfeest!</small></div>
+    </section>
+    ${shelfRow('Populair deze maand',[...BOOKS].sort((a,b)=>b.pop-a.pop).slice(0,8))}
+    ${shelfRow('Nog nooit geleend',BOOKS.filter(b=>b.pop===0),'Wie vindt de verborgen parel?')}
+    <section><h2>Alle planken</h2><div class="pills">${Object.entries(GENRES).map(([k,g])=>`<button class="pill" style="--c:${g.color}" data-act="shelf" data-v="${k}"><i></i>${g.label}</button>`).join('')}</div></section>
+  `,enter);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{const m=$('#meter');if(m)m.style.width='68%';}));
+}
+
+function showShelf(k){
+  const g=GENRES[k];const list=BOOKS.filter(b=>b.g.includes(k));
+  setView('shelf',`<section><button class="back" data-act="home">← Terug</button>
+    <p class="eyebrow">Kast met de ${g.sticker} sticker</p><h1>${g.label}</h1></section>
+    <section><div class="grid">${list.map((b,i)=>cover(b,i)).join('')}</div></section>`,true);
+}
+
+/* Zoeken op onderwerp */
+function showSearch(q){
+  setView('search',`<section><button class="back" data-act="home">← Terug</button>
+    <h1>Ik zoek iets over…</h1>
+    <form class="sform" id="sform" autocomplete="off"><input id="q" type="search" enterkeyhint="search" placeholder="Bijvoorbeeld: dieren" aria-label="Onderwerp"><button type="submit">Zoek</button></form>
+    <div class="chips">${EXAMPLES.map(x=>`<button class="chip" data-act="search" data-v="${x}">${x}</button>`).join('')}</div>
+    <p class="privacy">${ICON.lock}Wat je hier typt, wordt niet bewaard.</p>
+    <div id="results"></div></section>`);
+  const input=$('#q');
+  input.value=q||'';
+  let t;
+  input.addEventListener('input',()=>{clearTimeout(t);t=setTimeout(()=>doSearch(input.value),250);});
+  $('#sform').addEventListener('submit',e=>{e.preventDefault();doSearch(input.value);input.blur();});
+  if(q)doSearch(q);
+}
+
+function helpCard(strong){
+  if(strong)return `<div class="help strong"><h2>Wat goed dat je dit opschrijft.</h2>
+    <p>Dit is te belangrijk voor alleen een boek. Vertel het aan iemand die je vertrouwt: je juf, je meester of iemand thuis.</p>
+    <p>Je kunt ook gratis bellen of chatten met De Kindertelefoon:</p><p class="phone">0800-0432</p>
+    <small>Ook via <a href="https://www.kindertelefoon.nl" target="_blank" rel="noopener">kindertelefoon.nl</a></small>
+    <div><button class="btn" data-act="home">Terug naar het begin</button></div></div>`;
+  return `<div class="help pal"><span class="ava sm">${OWL}</span><p><strong>Toet:</strong> Daar zijn mooie boeken over. Praat er ook over met iemand die je vertrouwt, zoals je juf of meester. Of bel gratis met De Kindertelefoon: <span class="num-inline">0800-0432</span>.</p></div>`;
+}
+
+function doSearch(q){
+  state.q=q;const r=$('#results');if(!r)return;
+  const n=norm(q);
+  if(!n){r.innerHTML='';return;}
+  if(SIGNAL.some(s=>n.includes(norm(s)))){r.innerHTML=helpCard(true);return;}
+  const matched=Object.keys(CONCEPTS).filter(k=>CONCEPTS[k].w.some(w=>n.includes(norm(w))));
+  const heavy=matched.some(k=>CONCEPTS[k].heavy);
+  const scored=BOOKS.map(b=>{
+    let s=b.cs.filter(c=>matched.includes(c)).length*2;
+    if(n.length>=3&&(norm(b.t).includes(n)||norm(b.a).includes(n)||b.kw.some(k=>norm(k).includes(n))))s+=3;
+    return {b,s};
+  }).filter(x=>x.s>0).sort((a,b)=>b.s-a.s||b.b.likes-a.b.likes);
+  let html=heavy?helpCard(false):'';
+  html+=scored.length
+    ?`<h2>${scored.length} ${scored.length===1?'boek':'boeken'} over “${esc(q)}”</h2><div class="grid">${scored.map((x,i)=>cover(x.b,i,'','search')).join('')}</div>`
+    :`<p class="empty">Hier vond ik nog geen boek over. Probeer een ander woord, of tik op een van de voorbeelden.</p>`;
+  r.className='enter';r.innerHTML=html;
+}
+
+/* Boek */
+function faceSvg(v){
+  const col=['#F08A7A','#F5C342','#3FB37F'][v];
+  const mouth=['M8 16.5c1.2-1.5 2.5-2 4-2s2.8.5 4 2','M8.5 15.2h7','M8 14.3c1.2 1.6 2.5 2.2 4 2.2s2.8-.6 4-2.2'][v];
+  return `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="${col}"/><circle cx="8.6" cy="9.6" r="1.4" fill="#1F2440"/><circle cx="15.4" cy="9.6" r="1.4" fill="#1F2440"/><path d="${mouth}" fill="none" stroke="#1F2440" stroke-width="1.7" stroke-linecap="round"/></svg>`;
+}
+function faces(q,id){
+  const labels=['Niet leuk','Gaat wel','Leuk'];
+  return `<div class="faces">${[2,1,0].map(v=>`<button class="face" data-act="rate" data-q="${q}" data-id="${id}" data-val="${v}" aria-label="${labels[v]}" aria-pressed="${state.ratings[id+q]===v}">${faceSvg(v)}</button>`).join('')}</div>`;
+}
+function showBook(id,from){
+  const b=byId(id);const g=GENRES[b.g[0]];
+  const similar=BOOKS.filter(x=>x.id!==b.id&&x.g.some(k=>b.g.includes(k))).sort((a,c)=>c.likes-a.likes).slice(0,6);
+  const back=from==='search'?`data-act="search" data-v="${esc(state.q)}"`:from==='scan'?'data-act="scan"':'data-act="home"';
+  const pw=from==='pals-toet'?'toet':from==='pals-bas'?'bas':(b.g.some(k=>['grappig','strip','dieren'].includes(k))?'bas':'toet');
+  const ptext=from==='pals-toet'?'Goede keus. Ik ben benieuwd wat je ervan vindt.':from==='pals-bas'?'Yes! Deze ga je leuk vinden, dat voel ik in mijn staartje.':esc(b.why||'');
+  setView('book',`<section><button class="back" ${back}>← Terug</button>
+    <div class="detail"><div class="dcover">${cover(b,0,'big')}</div>
+    <div class="dinfo"><p class="eyebrow">${b.g.map(k=>GENRES[k].label).join(' · ')} · groep ${b.groep}</p>
+      <h1>${esc(b.t)}</h1><p class="by">${esc(b.a)}</p>
+      ${ptext?`<div class="bookpal">${palLine(pw,ptext)}</div>`:''}
+      <p>${esc(b.s)}</p>
+      <div class="kw">${b.kw.map(k=>`<span>${esc(k)}</span>`).join('')}</div>
+      <p class="where">${ICON.pin}<span>In de kast met de ${g.sticker} sticker · <span class="status ${b.uit?'out':''}">${b.uit?'Uitgeleend':'Aanwezig'}</span></span></p>
+      <div class="rating">
+        <div class="rq"><p>Vond je het een fijn boek?</p>${faces('fijn',b.id)}</div>
+        ${from==='search'?`<div class="rq"><p>Paste het bij wat je zocht?</p>${faces('past',b.id)}</div>`:''}
+        <p class="rsum">${b.likes?`${b.likes} kinderen vonden dit een fijn boek.`:'Nog niemand heeft dit boek beoordeeld. Wees de eerste!'}</p>
+      </div>
+    </div></div></section>
+    ${similar.length?shelfRow('Als je dit leuk vond…',similar):''}`,true);
+}
+
+/* Scannen: foto van streepjescode of kaft */
+function showScan(){
+  state.photo=null;state.scanStatus=null;state.needsClaude=false;
+  setView('scan',`<section><button class="back" data-act="home">← Terug</button>
+    <h1>Waar gaat dit boek over?</h1>
+    <p class="lead">Maak een foto van de streepjescode op de achterkant. Of van de voorkant van het boek.</p>
+    <div class="scanbox">
+      <div class="viewfinder" id="vf"><div class="frame"></div><div class="beam"></div><p>Houd het boek recht voor de camera</p></div>
+      <label class="btn dark file-btn">${ICON.camera}<span>Open de camera</span><input id="cam" type="file" accept="image/*" capture="environment" aria-label="Maak een foto van het boek"></label>
+      <div class="scanmsg" id="scanmsg"></div>
+    </div>
+    <div class="demo" style="margin-top:16px"><span class="muted">Geen boek bij de hand?</span><button class="chip" data-act="demoscan">Probeer een voorbeeld</button></div>
+    <p class="privacy">${ICON.lock}De foto blijft op dit apparaat en wordt niet bewaard.</p>
+  </section>`,true);
+  $('#cam').addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(f)handlePhoto(f);e.target.value='';});
+}
+
+function showPhoto(file){
+  const url=URL.createObjectURL(file);
+  $('#vf').innerHTML=`<img src="${url}" alt="Jouw foto van het boek"><div class="beam"></div>`;
+}
+function setScanMsg(html){const m=$('#scanmsg');if(m)m.innerHTML=html;}
+
+async function handlePhoto(file){
+  state.photo=file;state.needsClaude=false;
+  showPhoto(file);
+  setScanMsg(`<p class="muted">Even kijken…</p>`);
+  const code=await readBarcode(file);
+  if(state.view!=='scan')return;
+  const beam=$('#vf .beam');if(beam)beam.remove();
+  if(code){
+    const isbn=code.replace(/[^0-9X]/gi,'');
+    const b=BOOKS.find(x=>x.isbn===isbn);
+    if(b){foundBook(b,'Gevonden via de streepjescode');return;}
+    state.needsClaude=true;state.scanStatus={isbn};
+    renderScanState();return;
+  }
+  state.needsClaude=true;state.scanStatus={isbn:null};
+  renderScanState();
+}
+
+function renderScanState(){
+  const st=state.scanStatus||{};
+  const head=st.isbn
+    ?`<p><strong>Streepjescode gelezen:</strong> ${esc(st.isbn)}. Dit boek staat nog niet in onze bibliotheek.</p>`
+    :`<p><strong>Geen streepjescode gevonden.</strong> Probeer het nog eens, met de streepjes groot en scherp in beeld.</p>`;
+  const ask=(sampleFn&&canImages)
+    ?`<button class="btn primary" data-act="askclaude">Laat Claude de kaft lezen</button><p class="muted">Claude kijkt naar de foto en vertelt waar het boek over gaat.</p>`
+    :'';
+  setScanMsg(head+ask);
+}
+
+function foundBook(b,how){
+  setScanMsg(`<div class="found">${cover(b,0,'','scan')}<div><p class="eyebrow">${how}</p><h2>${esc(b.t)}</h2><p style="margin-top:6px">${esc(b.s)}</p>
+    <button class="btn primary" style="margin-top:12px" data-act="book" data-v="${b.id}" data-from="scan">Bekijk dit boek</button></div></div>`);
+}
+
+let zxingP=null;
+function loadZXing(){
+  if(window.ZXing)return Promise.resolve(window.ZXing);
+  if(zxingP)return zxingP;
+  zxingP=new Promise((res,rej)=>{const s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';
+    s.onload=()=>window.ZXing?res(window.ZXing):rej(new Error('geen ZXing'));s.onerror=rej;document.head.appendChild(s);});
+  return zxingP;
+}
+async function readBarcode(file){
+  try{
+    if('BarcodeDetector' in window){
+      const fmts=await window.BarcodeDetector.getSupportedFormats().catch(()=>[]);
+      if(fmts.includes('ean_13')){
+        const det=new window.BarcodeDetector({formats:['ean_13','ean_8','upc_a']});
+        const bmp=await createImageBitmap(file);
+        const r=await det.detect(bmp);
+        if(r&&r[0])return r[0].rawValue;
+      }
+    }
+  }catch(e){}
+  try{
+    const Z=await loadZXing();
+    const reader=new Z.BrowserMultiFormatReader();
+    const url=URL.createObjectURL(file);
+    const r=await reader.decodeFromImageUrl(url);
+    URL.revokeObjectURL(url);
+    return r?r.getText():null;
+  }catch(e){return null;}
+}
+
+async function askClaude(btn){
+  if(!sampleFn||!state.photo)return;
+  btn.disabled=true;btn.textContent='Claude kijkt…';
+  const prompt='Dit is een foto van een kinderboek (voorkant of achterkant) uit een schoolbibliotheek van een basisschool. '
+    +'Lees de titel en de schrijver. Antwoord met alleen JSON, zo: {"titel":"…","schrijver":"…","overWat":"…","zeker":true}. '
+    +'"overWat": hooguit twee korte zinnen in eenvoudig Nederlands voor een kind van 8 tot 12 jaar, over waar het boek over gaat. '
+    +'Ken je het boek niet zeker, vertel dan alleen wat je op de kaft of achterflap ziet en zet "zeker" op false. Verzin geen inhoud. '
+    +'Is het geen boek, zet dan "titel" op null en leg in "overWat" kort uit wat je wel ziet.';
+  try{
+    const r=await sampleFn.json(prompt,{images:[state.photo]});
+    if(state.view!=='scan')return;
+    const t=r&&r.titel?String(r.titel):null;
+    const match=t?BOOKS.find(b=>norm(b.t).includes(norm(t))||norm(t).includes(norm(b.t))):null;
+    if(match){foundBook(match,'Herkend door Claude');return;}
+    setScanMsg(`<div class="claude-card"><span class="tag">Volgens Claude</span>
+      <h3>${t?esc(t):'Geen boek herkend'}</h3>${r&&r.schrijver?`<p class="muted">${esc(r.schrijver)}</p>`:''}
+      <p>${esc(r&&r.overWat?r.overWat:'')}</p>
+      ${r&&r.zeker===false?'<p class="muted">Claude kent dit boek niet zeker. Vraag het ook even aan je juf of meester.</p>':''}
+      ${t?'<p class="muted">Dit boek staat nog niet in onze bibliotheek.</p>':''}</div>`);
+  }catch(e){
+    const msg={not_granted:'Claude mag niet meekijken in deze app.',rate_limited:'Claude is even te druk. Probeer het straks nog eens.',image_rejected:'Deze foto lukt niet. Maak een nieuwe foto.',refused:'Claude kan deze foto niet bekijken.'}[e&&e.code]||'Dat lukte niet. Probeer het nog eens.';
+    if(e&&['not_granted','sampling_disabled','images_unavailable'].includes(e.code)){canImages=false;}
+    setScanMsg(`<p>${msg}</p>`);
+  }
+}
+
+function demoScan(){
+  const b=BOOKS.find(x=>x.isbn);
+  const vf=$('#vf');
+  if(vf)vf.innerHTML=`<div class="frame"></div><div class="beam"></div><p style="font-family:var(--f-display);font-size:1.5rem;letter-spacing:.12em">${b.isbn}</p>`;
+  setScanMsg(`<p class="muted">Even kijken…</p>`);
+  setTimeout(()=>{if(state.view!=='scan')return;const bm=$('#vf .beam');if(bm)bm.remove();foundBook(b,'Gevonden via de streepjescode');},reduce?0:1100);
+}
+
+/* Verras me */
+function showSurprise(){
+  const pool=BOOKS.filter(b=>b.id!==state.lastSurprise);
+  const b=pool[Math.floor(Math.random()*pool.length)];state.lastSurprise=b.id;
+  setView('surprise',`<section><button class="back" data-act="home">← Terug</button>
+    <h1>Blind date met een boek</h1><p class="lead">Je ziet alleen drie woorden. Durf je hem uit te pakken?</p></section>
+    <section><div class="stage" id="stage">
+      <div class="gift"><div class="lid"></div><div class="box"></div><div class="rib"></div><div class="bow"></div></div>
+      <div class="reveal">${cover(b,0)}</div></div>
+      <div class="clues">${b.kw.map(k=>`<span>${esc(k)}</span>`).join('')}</div>
+      <div class="gactions" id="gactions"><button class="btn primary" data-act="unwrap" data-v="${b.id}">Pak uit</button><button class="btn" data-act="surprise">Andere verrassing</button></div>
+    </section>`,true);
+}
+function unwrap(id){
+  $('#stage').classList.add('open');
+  $('#gactions').innerHTML=`<button class="btn primary" data-act="book" data-v="${id}">Bekijk dit boek</button><button class="btn" data-act="surprise">Nog een verrassing</button>`;
+}
+
+function rate(t){
+  const {q,id,val}=t.dataset;const v=+val;
+  state.ratings[id+q]=v;
+  t.parentElement.querySelectorAll('.face').forEach(f=>f.setAttribute('aria-pressed',f===t));
+  const lines=q==='past'?['Toet: Dank je! Zo worden onze tips steeds beter.']:['Bas: Opgeschreven! Nou ja… opgegeten.','Toet: Dank je. Zo vinden andere kinderen ook een fijn boek.','Bas: Top! Ik vertel het meteen aan de andere boekenwurmen.'];
+  toast(lines[Math.floor(Math.random()*lines.length)]);
+}
+let toastT;
+function toast(msg){const el=$('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2200);}
+
+/* Toet & Bas: een gesprek met knoppen, geen typen */
+function palLine(who,text){const p=PALS[who];
+  return `<div class="line" style="--pc:${p.color}"><span class="ava">${p.svg}</span><div class="bubble"><b>${p.name}</b><p>${text}${canSpeak?` <button class="say" data-act="say" data-who="${who}" data-v="${esc(String(text).replace(/<[^>]+>/g,''))}" aria-label="Lees voor">${ICON.speaker}</button>`:''}</p></div></div>`;}
+function kidLine(text){return `<div class="line kid"><div class="bubble"><p>${esc(text)}</p></div></div>`;}
+const wait=ms=>new Promise(r=>setTimeout(r,reduce?0:ms));
+function scrollEnd(){const o=$('#opts');if(o)o.scrollIntoView({block:'end',behavior:reduce?'auto':'smooth'});}
+async function palSay(lines,token){
+  const c=$('#chat');
+  for(const [who,text] of lines){
+    if(state.view!=='pals'||!state.chat||state.chat.token!==token)return false;
+    c.insertAdjacentHTML('beforeend',`<div class="line" style="--pc:${PALS[who].color}"><span class="ava">${PALS[who].svg}</span><div class="bubble"><span class="dots"><i></i><i></i><i></i></span></div></div>`);
+    scrollEnd();await wait(700);
+    if(state.view!=='pals'||!state.chat||state.chat.token!==token)return false;
+    c.lastElementChild.outerHTML=palLine(who,text);scrollEnd();
+  }
+  return true;
+}
+function showPals(){
+  state.chat={token:Math.random(),step:0,ans:{}};
+  setView('pals',`<section><button class="back" data-act="home">← Terug</button><h1>Toet en Bas helpen je kiezen</h1>
+    <div class="chat" id="chat"></div><div class="opts" id="opts"></div></section>`,true);
+  runStep();
+}
+async function runStep(){
+  const ch=state.chat;const st=PSTEPS[ch.step];
+  if(!await palSay(st.q(ch.ans),ch.token))return;
+  $('#opts').innerHTML=st.opts.map(([l,v])=>`<button class="opt" data-act="palopt" data-v="${v}" data-l="${esc(l)}">${esc(l)}</button>`).join('');
+  scrollEnd();
+}
+function palOpt(t){
+  const ch=state.chat;if(!ch)return;const st=PSTEPS[ch.step];if(!st)return;
+  ch.ans[st.id]=t.dataset.v;$('#opts').innerHTML='';
+  $('#chat').insertAdjacentHTML('beforeend',kidLine(t.dataset.l));
+  ch.step++;
+  if(ch.step<PSTEPS.length)runStep();else palPicks();
+}
+function gRange(s){const m=String(s).match(/(\d+)\D+(\d+)/);return m?[+m[1],+m[2]]:[1,8];}
+function pickBooks(a){
+  const [lo,hi]=gRange(a.groep);
+  const fit=b=>{const [x,y]=gRange(b.groep);return x<=hi&&y>=lo;};
+  const tries=[
+    b=>fit(b)&&(a.zin==='any'||b.g.includes(a.zin))&&(a.plaat==='any'||(a.plaat==='ja')===!!b.plaatjes),
+    b=>fit(b)&&(a.zin==='any'||b.g.includes(a.zin)),
+    b=>fit(b),
+    ()=>true];
+  let list=[];for(const f of tries){list=BOOKS.filter(f);if(list.length>=2)break;}
+  list=list.map(b=>({b,s:b.likes+Math.random()*20})).sort((x,y)=>y.s-x.s).map(x=>x.b);
+  const serious=b=>b.g.some(k=>['spannend','gevoel','fantasie','avontuur'].includes(k));
+  const funny=b=>b.g.some(k=>['grappig','strip','dieren'].includes(k));
+  const toet=list.find(serious)||list[0];
+  const bas=list.find(b=>b!==toet&&funny(b))||list.find(b=>b!==toet)||toet;
+  return {toet,bas};
+}
+async function palPicks(){
+  const ch=state.chat;const {toet,bas}=pickBooks(ch.ans);const same=toet===bas;
+  const lines=same?[['toet','Ik weet er een.'],['bas','Dat wilde ik nou ook zeggen!']]
+    :[['toet','Ik weet er een!'],['bas','Ik ook. En de mijne is beter.'],['toet','Dat zullen we nog zien. Wiens tip kies jij?']];
+  if(!await palSay(lines,ch.token))return;
+  const card=(who,b)=>`<div class="pick" style="--pc:${PALS[who].color}"><div class="pick-h"><span class="ava sm">${PALS[who].svg}</span><span>Tip van ${PALS[who].name}</span></div>${cover(b,0,'','pals-'+who)}<p class="why">${esc(b.why||b.s)}</p></div>`;
+  $('#opts').innerHTML=`<div class="picks ${same?'one':''}">${card('toet',toet)}${same?'':card('bas',bas)}</div><div class="again"><button class="chip" data-act="pals">Nog een keer</button></div>`;
+  scrollEnd();
+}
+function speak(t){
+  if(!canSpeak){return;}
+  const u=new SpeechSynthesisUtterance(t.dataset.v);
+  u.lang='nl-NL';
+  const v=speechSynthesis.getVoices().find(x=>x.lang&&x.lang.toLowerCase().startsWith('nl'));
+  if(v)u.voice=v;
+  u.rate=.95;u.pitch=(PALS[t.dataset.who]||{}).pitch||1;
+  speechSynthesis.cancel();speechSynthesis.speak(u);
+}
+
+/* Opening */
+const intro=$('#intro');let introT,ending=false;
+function seasonFx(){
+  const fx=$('#fx');fx.innerHTML='';
+  const m=new Date().getMonth();
+  const autumn=[8,9,10].includes(m),winter=[11,0,1].includes(m);
+  if(!autumn&&!winter)return;
+  const cols=['#F5B700','#E2552B','#C9473F','#E8964A'];
+  for(let i=0;i<14;i++){
+    const s=document.createElement('span');
+    s.className=autumn?'leaf':'flake';
+    s.style.left=Math.random()*100+'%';
+    s.style.setProperty('--d',(2.4+Math.random()*1.8)+'s');
+    s.style.setProperty('--dl',(Math.random()*1.2)+'s');
+    s.style.setProperty('--x',(Math.random()*160-80)+'px');
+    s.style.setProperty('--lc',cols[i%cols.length]);
+    fx.appendChild(s);
+  }
+}
+function playIntro(){
+  if(reduce){showHome();return;}
+  ending=false;
+  $('#introGreet').textContent=greeting();
+  seasonFx();
+  intro.hidden=false;intro.classList.remove('play','out');
+  void intro.offsetWidth;intro.classList.add('play');
+  clearTimeout(introT);introT=setTimeout(endIntro,2500);
+}
+function endIntro(){
+  if(ending||intro.hidden)return;ending=true;clearTimeout(introT);
+  showHome(true);
+  intro.classList.add('out');
+  setTimeout(()=>{intro.hidden=true;intro.classList.remove('play','out');},420);
+}
+intro.addEventListener('click',endIntro);
+
+/* Klikken */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-act]');if(!t||t.closest('#intro'))return;
+  const a=t.dataset.act,v=t.dataset.v;
+  if(a==='home')showHome(true);
+  else if(a==='shelf')showShelf(v);
+  else if(a==='search')showSearch(v||'');
+  else if(a==='book')showBook(v,t.dataset.from);
+  else if(a==='surprise')showSurprise();
+  else if(a==='unwrap')unwrap(v);
+  else if(a==='rate')rate(t);
+  else if(a==='scan')showScan();
+  else if(a==='demoscan')demoScan();
+  else if(a==='askclaude')askClaude(t);
+  else if(a==='pals')showPals();
+  else if(a==='palopt')palOpt(t);
+  else if(a==='say')speak(t);
+  else if(a==='replay'){window.scrollTo(0,0);playIntro();}
+});
+
+/* Na 60 seconden stilte: opnieuw beginnen (op een gedeelde tablet ziet het volgende kind niets van het vorige) */
+let idleT;
+function resetIdle(){clearTimeout(idleT);idleT=setTimeout(()=>{state.q='';state.ratings={};state.photo=null;window.scrollTo(0,0);playIntro();},60000);}
+['pointerdown','keydown','input','scroll'].forEach(ev=>window.addEventListener(ev,resetIdle,{passive:true}));
+
+showHome();
+playIntro();
+resetIdle();
+</script>
+</body>
+</html>
