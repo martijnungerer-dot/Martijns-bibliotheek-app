@@ -11,6 +11,7 @@ Dit is een **prototype**: de titels zijn echte kinderboeken, maar de kaften, tel
 
 ## Documenten
 
+- [Roadmap met voortgang](https://martijnungerer-dot.github.io/Martijns-bibliotheek-app/roadmap.html): de roadmap met vinkjes, voortgangsbalk en confetti; leest `docs/roadmap.md` uit
 - [Traject en roadmap](docs/roadmap.md): de zes fases, werkstromen en mijlpalen
 - [Ideeën](docs/ideeen.md): alle ideeën voor de app
 - [Checklist](docs/checklist.md): wat je regelt vóór de eerste sessie

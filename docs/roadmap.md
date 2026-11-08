@@ -49,7 +49,7 @@ Elke fase heeft een **klaar als**-zin: pas als die klopt, gaan we door. Het aant
 ### Fase 0 · Voorbereiden (1 sessie)
 
 - [ ] Checklist van de vriend afgerond: accounts, GitHub-uitnodiging, Claude-account
-- [ ] Repository `Martijns-bibliotheek-app` gevuld met prototype en README
+- [x] Repository `Martijns-bibliotheek-app` gevuld met prototype en README
 - [ ] Directeur of ICT-coördinator weet wat we bouwen
 - [ ] **Klaar als:** de vriend heeft het prototype op zijn eigen telefoon geopend
 
@@ -57,7 +57,7 @@ Elke fase heeft een **klaar als**-zin: pas als die klopt, gaan we door. Het aant
 
 - [ ] Code opgesplitst in losse bestanden: HTML, CSS, JavaScript, boekenlijst
 - [ ] Boekenlijst als apart JSON-bestand dat de app inleest
-- [ ] GitHub Pages aan; de app staat online op een vast adres
+- [x] GitHub Pages aan; de app staat online op een vast adres
 - [ ] Werkafspraak branches en pull requests in de README
 - [ ] **Klaar als:** een pull request van de vriend staat live online
 

@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>MeerLezen · Roadmap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Lexend:wght@400;500;600&display=swap">
+<style>
+/* Roadmap van MeerLezen. Leest docs/roadmap.md uit; afvinken gebeurt in dat bestand. */
+:root{
+  --paper:#EAF0F5;
+  --card:#FFFFFF;
+  --ink:#1F2440;
+  --muted:#59607D;
+  --line:#D3DCE6;
+  --sun:#F5B700;
+  --sun-soft:#FFF4D6;
+  --sea:#1F8A93;
+  --sea-soft:#DDF1F2;
+  --rose:#E8607A;
+  --indigo:#3D4BA8;
+  --indigo-soft:#E4E7F7;
+  --wood:#D8C3A0;
+  --f-display:'Baloo 2','Trebuchet MS',system-ui,sans-serif;
+  --f-body:'Lexend',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;
+  -webkit-tap-highlight-color:transparent;
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px))}
+main{max-width:760px;margin:0 auto}
+a{color:var(--indigo)}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.9em;background:var(--paper);padding:1px 5px;border-radius:6px}
+[hidden]{display:none!important}
+
+/* Kop */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 20px}
+.brand{font-family:var(--f-display);font-weight:800;font-size:28px;line-height:1;margin:0}
+.brand span{color:var(--rose)}
+.top a{font-size:14px;font-weight:500;text-decoration:none;background:var(--card);border:1px solid var(--line);padding:8px 14px;border-radius:999px;white-space:nowrap}
+
+/* Totale voortgang */
+.hero{background:var(--card);border-radius:24px;padding:24px;box-shadow:0 2px 0 var(--line);margin-bottom:24px;position:relative;overflow:hidden}
+.hero h1{font-family:var(--f-display);font-weight:800;font-size:34px;line-height:1.1;margin:0 0 4px}
+.hero p{margin:0;color:var(--muted)}
+.bar{height:22px;background:var(--paper);border-radius:999px;margin:18px 0 8px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;border-radius:999px;
+  background:linear-gradient(90deg,var(--sea),var(--sun),var(--rose));background-size:200% 100%;
+  transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
+.meta{display:flex;justify-content:space-between;gap:12px;font-size:14px;color:var(--muted);flex-wrap:wrap}
+.meta b{color:var(--ink)}
+.party{position:absolute;top:16px;right:16px;border:0;background:var(--sun-soft);font-size:22px;width:44px;height:44px;border-radius:50%;cursor:pointer}
+.party:active{transform:scale(.92)}
+
+/* Tijdlijn */
+.timeline{position:relative;padding-left:28px}
+.timeline::before{content:"";position:absolute;left:11px;top:8px;bottom:8px;width:4px;border-radius:4px;background:var(--line)}
+.phase,.gate{position:relative;margin-bottom:16px}
+.dot{position:absolute;left:-28px;top:20px;width:26px;height:26px;border-radius:50%;background:var(--card);border:4px solid var(--line);display:grid;place-items:center;font-size:12px;font-weight:600;color:#fff}
+.phase.done .dot{background:var(--sea);border-color:var(--sea)}
+.phase.busy .dot{background:var(--sun);border-color:var(--sun)}
+
+.card{background:var(--card);border-radius:20px;box-shadow:0 2px 0 var(--line);overflow:hidden}
+.phase.done .card{box-shadow:0 2px 0 var(--sea),inset 0 0 0 2px var(--sea-soft)}
+.head{width:100%;display:flex;align-items:center;gap:14px;padding:16px 18px;background:none;border:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.ring{flex:none;width:52px;height:52px}
+.ring circle{fill:none;stroke-width:6}
+.ring .bg{stroke:var(--paper)}
+.ring .fg{stroke:var(--line);stroke-linecap:round;transition:stroke-dashoffset 1s cubic-bezier(.2,.8,.2,1)}
+.phase.busy .ring .fg{stroke:var(--sun)}
+.phase.done .ring .fg{stroke:var(--sea)}
+.ring text{font-family:var(--f-body);font-size:13px;font-weight:600;fill:var(--ink);text-anchor:middle;dominant-baseline:central}
+.htxt{flex:1;min-width:0}
+.kicker{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.htxt h2{font-family:var(--f-display);font-weight:800;font-size:22px;line-height:1.15;margin:0}
+.chip{display:inline-block;font-size:12px;font-weight:600;padding:2px 10px;border-radius:999px;margin-top:4px;background:var(--paper);color:var(--muted)}
+.phase.done .chip{background:var(--sea-soft);color:var(--sea)}
+.phase.busy .chip{background:var(--sun-soft);color:#8A6500}
+.chev{flex:none;transition:transform .2s;color:var(--muted)}
+.phase.open .chev{transform:rotate(180deg)}
+
+.items{list-style:none;margin:0;padding:0 18px 12px;display:none}
+.phase.open .items{display:block}
+.item{display:flex;gap:12px;align-items:flex-start;padding:10px 8px;border-top:1px solid var(--line);cursor:pointer;border-radius:10px}
+.item:hover{background:var(--paper)}
+.box{flex:none;width:26px;height:26px;border-radius:8px;border:2.5px solid var(--line);display:grid;place-items:center;margin-top:1px;background:#fff}
+.item.on .box{background:var(--sea);border-color:var(--sea)}
+.box svg{width:16px;height:16px;opacity:0}
+.item.on .box svg{opacity:1}
+.item.on .t{color:var(--muted)}
+.item.goal{background:var(--indigo-soft);border-top:0;margin-top:6px}
+.item.goal.on{background:var(--sea-soft)}
+.item.fresh .box{animation:pop .7s cubic-bezier(.2,1.6,.4,1) both}
+.item.fresh{animation:glow 2.4s ease-out both}
+@keyframes pop{0%{transform:scale(.3) rotate(-30deg)}100%{transform:none}}
+@keyframes glow{0%,40%{background:var(--sun-soft)}100%{background:transparent}}
+
+.gate .card{background:repeating-linear-gradient(-45deg,#fff 0 14px,var(--sun-soft) 14px 28px);padding:14px 18px;display:flex;gap:12px;align-items:center;cursor:pointer}
+.gate .dot{background:var(--card);border-color:var(--sun);color:var(--ink);font-size:13px}
+.gate.done .dot{background:var(--sea);border-color:var(--sea)}
+.gate.done .card{background:var(--sea-soft)}
+.gate b{font-family:var(--f-display);font-size:18px}
+.gate p{margin:0;font-size:14px;color:var(--muted)}
+.gate .ico{font-size:24px}
+
+/* Open vragen */
+.qs{margin-top:28px}
+.qs h3{font-family:var(--f-display);font-weight:800;font-size:22px;margin:0 0 8px}
+.qs .card{padding:4px 10px}
+.qs .item:first-child{border-top:0}
+
+/* Uitleg onderaan */
+.how{margin-top:28px;background:var(--card);border-radius:20px;padding:18px 20px;font-size:14px;color:var(--muted)}
+.how h3{font-family:var(--f-display);color:var(--ink);font-size:18px;margin:0 0 6px}
+.how ol{margin:0;padding-left:20px}
+
+/* Melding en venster */
+.toast{position:fixed;left:50%;bottom:max(20px,env(safe-area-inset-bottom,0px));transform:translate(-50%,140%);background:var(--ink);color:#fff;padding:14px 20px;border-radius:18px;
+  font-weight:500;max-width:calc(100% - 32px);width:max-content;box-shadow:0 10px 30px rgba(31,36,64,.3);transition:transform .45s cubic-bezier(.2,1.4,.4,1);z-index:30;text-align:center}
+.toast.show{transform:translate(-50%,0)}
+.toast big{display:block;font-family:var(--f-display);font-size:22px;line-height:1.2}
+.sheet{position:fixed;inset:0;background:rgba(31,36,64,.45);display:grid;place-items:end center;z-index:20;padding:16px}
+.sheet .panel{background:var(--card);border-radius:24px;padding:22px;max-width:520px;width:100%;margin-bottom:env(safe-area-inset-bottom,0px)}
+.sheet h3{font-family:var(--f-display);font-size:22px;margin:0 0 8px;line-height:1.2}
+.sheet p{margin:0 0 12px;color:var(--muted)}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.btn{flex:1;min-height:48px;border-radius:14px;border:0;font:inherit;font-weight:600;cursor:pointer;display:grid;place-items:center;text-decoration:none;padding:0 16px}
+.btn.main{background:var(--indigo);color:#fff}
+.btn.alt{background:var(--paper);color:var(--ink)}
+canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:40;width:100%;height:100%}
+
+.state{text-align:center;padding:48px 16px;color:var(--muted)}
+.state big{display:block;font-size:40px}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <p class="brand">Meer<span>Lezen</span></p>
+    <a href="./">Naar de app</a>
+  </div>
+
+  <section class="hero" id="hero" hidden>
+    <button class="party" id="party" type="button" aria-label="Vier het nog een keer">🎉</button>
+    <h1 id="headline">Onze roadmap</h1>
+    <p id="sub"></p>
+    <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="barwrap"><i id="bar"></i></div>
+    <div class="meta"><span id="count"></span><span id="updated"></span></div>
+  </section>
+
+  <div class="timeline" id="timeline"></div>
+  <section class="qs" id="qs" hidden>
+    <h3>Open vragen</h3>
+    <div class="card"><ul class="items" style="display:block;padding:0" id="qlist"></ul></div>
+  </section>
+
+  <section class="how" id="how" hidden>
+    <h3>Iets afvinken?</h3>
+    <ol>
+      <li>Open <code>docs/roadmap.md</code> op GitHub en klik op het potloodje.</li>
+      <li>Verander <code>- [ ]</code> in <code>- [x]</code> bij wat klaar is.</li>
+      <li>Klik op <b>Commit changes</b>, of maak er een pull request van.</li>
+      <li>Na een paar minuten staat het vinkje hier, en is er een feestje 🎉</li>
+    </ol>
+  </section>
+
+  <div class="state" id="state"><big>📚</big>Roadmap laden…</div>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="sheet" id="sheet" hidden>
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+    <h3 id="sheet-title"></h3>
+    <p id="sheet-text"></p>
+    <div class="btns">
+      <a class="btn main" id="sheet-edit" target="_blank" rel="noopener">Aanpassen op GitHub</a>
+      <button class="btn alt" id="sheet-close" type="button">Sluiten</button>
+    </div>
+  </div>
+</div>
+<canvas id="fx" aria-hidden="true"></canvas>
+
+<script>
+const REPO = 'martijnungerer-dot/Martijns-bibliotheek-app';
+const FILE = 'docs/roadmap.md';
+const SOURCES = [FILE, `https://raw.githubusercontent.com/${REPO}/main/${FILE}`];
+const EDIT_URL = `https://github.com/${REPO}/edit/main/${FILE}`;
+const BLOB_URL = `https://github.com/${REPO}/blob/main/${FILE}`;
+const SEEN_KEY = 'meerlezen-roadmap-gezien';
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = id => document.getElementById(id);
+
+/* ---------- Markdown inlezen ---------- */
+function esc(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function inline(s){
+  return esc(s)
+    .replace(/`([^`]+)`/g,'<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>')
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+}
+function plain(s){return s.replace(/\*\*|`/g,'').replace(/\[([^\]]+)\]\([^)]+\)/g,'$1')}
+
+function parse(md){
+  const lines = md.split(/\r?\n/);
+  const steps = [], questions = [];
+  let section = '', phase = null;
+  lines.forEach((raw, i) => {
+    const line = raw.trim(), n = i + 1;
+    let m;
+    if (/^## /.test(line)) { section = line.slice(3); phase = null; return; }
+    if ((m = line.match(/^### (Fase (\d+)) · (.+?)(?: \((.+)\))?$/))) {
+      phase = {type:'phase', num:m[2], title:m[3], sessions:m[4]||'', line:n, items:[]};
+      steps.push(phase); return;
+    }
+    if ((m = line.match(/^\*\*Beslismoment ([A-Z]):\*\*\s*(.*)$/))) {
+      phase = null;
+      const done = /✅/.test(m[2]);
+      steps.push({type:'gate', letter:m[1], text:m[2].replace(/✅/g,'').trim(), done, line:n});
+      return;
+    }
+    if ((m = line.match(/^- \[( |x|X)\] (.*)$/))) {
+      const item = {done:m[1] !== ' ', text:m[2], line:n};
+      item.goal = /^\*\*Klaar als:\*\*/.test(item.text);
+      if (item.goal) item.text = item.text.replace(/^\*\*Klaar als:\*\*\s*/,'');
+      if (phase) { item.id = `f${phase.num}:${plain(item.text)}`; phase.items.push(item); }
+      else if (/^Open vragen/.test(section)) { item.id = `q:${plain(item.text)}`; questions.push(item); }
+    }
+  });
+  return {steps, questions};
+}
+
+async function load(){
+  for (const url of SOURCES) {
+    try {
+      const r = await fetch(url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(), {cache:'no-store'});
+      if (r.ok) return await r.text();
+    } catch (e) {}
+  }
+  throw new Error('niet gevonden');
+}
+
+/* ---------- Tekenen ---------- */
+const CHECK = '<svg viewBox="0 0 16 16"><path d="M3 8.5l3.2 3L13 4.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const CHEV = '<svg class="chev" width="22" height="22" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+function ring(done, total){
+  const r = 21, c = 2 * Math.PI * r;
+  const pct = total ? done / total : 0;
+  return `<svg class="ring" viewBox="0 0 52 52" aria-hidden="true"><circle class="bg" cx="26" cy="26" r="${r}"/>
+    <circle class="fg" cx="26" cy="26" r="${r}" transform="rotate(-90 26 26)" stroke-dasharray="${c}" stroke-dashoffset="${c}" data-off="${c * (1 - pct)}"/>
+    <text x="26" y="26">${done}/${total}</text></svg>`;
+}
+
+function itemHtml(it, fresh){
+  return `<li class="item${it.done ? ' on' : ''}${it.goal ? ' goal' : ''}${fresh.has(it.id) ? ' fresh' : ''}" data-line="${it.line}" data-done="${it.done ? 1 : 0}" tabindex="0">
+    <span class="box">${CHECK}</span><span class="t">${it.goal ? '<b>Klaar als:</b> ' : ''}${inline(it.text)}</span></li>`;
+}
+
+function render({steps, questions}, fresh){
+  const phases = steps.filter(s => s.type === 'phase');
+  const all = phases.flatMap(p => p.items);
+  const done = all.filter(i => i.done).length;
+  const pct = all.length ? Math.round(done / all.length * 100) : 0;
+  const finished = phases.filter(p => p.items.length && p.items.every(i => i.done));
+  const current = phases.find(p => !p.items.every(i => i.done));
+
+  $('headline').textContent = pct === 100 ? 'Alles klaar! 🏆' : pct === 0 ? 'Klaar voor de start!' : `${pct}% klaar`;
+  $('sub').textContent = current
+    ? `Nu bezig: Fase ${current.num} · ${current.title}`
+    : 'MeerLezen is af. Wat een team!';
+  $('count').innerHTML = `<b>${done}</b> van ${all.length} stappen · <b>${finished.length}</b> van ${phases.length} fases`;
+  $('barwrap').setAttribute('aria-valuenow', pct);
+
+  let gateOpen = true;
+  $('timeline').innerHTML = steps.map(s => {
+    if (s.type === 'gate') {
+      return `<div class="gate${s.done ? ' done' : ''}" data-line="${s.line}" data-gate="${s.done ? 1 : 0}">
+        <span class="dot">${s.done ? '✓' : s.letter}</span>
+        <div class="card" tabindex="0"><span class="ico">${s.done ? '🔓' : '🔒'}</span>
+        <div><b>Beslismoment ${s.letter}</b><p>${inline(s.text.charAt(0).toUpperCase() + s.text.slice(1))}</p></div></div></div>`;
+    }
+    const d = s.items.filter(i => i.done).length, t = s.items.length;
+    const state = t && d === t ? 'done' : d ? 'busy' : '';
+    const label = state === 'done' ? 'Klaar ✓' : state === 'busy' ? 'Bezig' : 'Nog niet begonnen';
+    const open = s === current || s.items.some(i => fresh.has(i.id));
+    return `<div class="phase ${state}${open ? ' open' : ''}">
+      <span class="dot">${state === 'done' ? '✓' : ''}</span>
+      <div class="card">
+        <button class="head" type="button" aria-expanded="${open}">
+          ${ring(d, t)}
+          <span class="htxt"><span class="kicker">Fase ${s.num}${s.sessions ? ' · ' + esc(s.sessions) : ''}</span>
+          <h2>${esc(s.title)}</h2><span class="chip">${label}</span></span>${CHEV}
+        </button>
+        <ul class="items">${s.items.map(i => itemHtml(i, fresh)).join('')}</ul>
+      </div></div>`;
+  }).join('');
+
+  if (questions.length) {
+    $('qlist').innerHTML = questions.map(i => itemHtml(i, fresh)).join('');
+    $('qs').hidden = false;
+  }
+
+  ['hero','how'].forEach(id => $(id).hidden = false);
+  $('state').hidden = true;
+
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    $('bar').style.width = pct + '%';
+    document.querySelectorAll('.ring .fg').forEach(c => c.style.strokeDashoffset = c.dataset.off);
+  }));
+  return finished;
+}
+
+/* ---------- Interactie ---------- */
+document.addEventListener('click', e => {
+  const head = e.target.closest('.head');
+  if (head) {
+    const ph = head.closest('.phase');
+    ph.classList.toggle('open');
+    head.setAttribute('aria-expanded', ph.classList.contains('open'));
+    return;
+  }
+  const it = e.target.closest('.item, .gate');
+  if (it && !e.target.closest('a')) openSheet(it);
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeSheet();
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.item, .gate .card')) {
+    e.preventDefault(); openSheet(e.target.closest('.item, .gate'));
+  }
+});
+
+function openSheet(el){
+  const line = el.dataset.line;
+  const isGate = el.classList.contains('gate');
+  const done = isGate ? el.dataset.gate === '1' : el.dataset.done === '1';
+  if (isGate) {
+    $('sheet-title').textContent = done ? 'Akkoord binnen! 🔓' : 'Wacht op de school';
+    $('sheet-text').innerHTML = done
+      ? `Dit beslismoment is genomen. Staat het er per ongeluk? Haal de ✅ weg op regel ${line}.`
+      : `Heeft de school akkoord gegeven? Zet dan een ✅ aan het eind van regel ${line} in <code>${FILE}</code>.`;
+  } else if (done) {
+    $('sheet-title').textContent = 'Al gedaan! ✓';
+    $('sheet-text').innerHTML = `Toch nog niet klaar? Verander op regel ${line} <code>- [x]</code> terug in <code>- [ ]</code>.`;
+  } else {
+    $('sheet-title').textContent = 'Is dit klaar? 🎉';
+    $('sheet-text').innerHTML = `Verander op regel ${line} van <code>${FILE}</code> <code>- [ ]</code> in <code>- [x]</code> en klik op <b>Commit changes</b>. Na een paar minuten staat het vinkje hier.`;
+  }
+  $('toast').classList.remove('show');
+  $('sheet-edit').href = EDIT_URL;
+  $('sheet').hidden = false;
+  $('sheet-close').focus();
+}
+function closeSheet(){ $('sheet').hidden = true; }
+$('sheet-close').onclick = closeSheet;
+$('sheet').addEventListener('click', e => { if (e.target === $('sheet')) closeSheet(); });
+
+let toastTimer;
+function toast(html, ms = 4200){
+  const t = $('toast');
+  t.innerHTML = html; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), ms);
+}
+
+/* ---------- Confetti ---------- */
+const COLORS = ['#F5B700','#1F8A93','#E8607A','#3D4BA8','#D8C3A0','#7CC6A4'];
+function confetti(power = 1){
+  if (reduceMotion) return;
+  const cv = $('fx'), ctx = cv.getContext('2d'), dpr = devicePixelRatio || 1;
+  cv.width = innerWidth * dpr; cv.height = innerHeight * dpr; ctx.scale(dpr, dpr);
+  const W = innerWidth, H = innerHeight, parts = [];
+  const burst = (x, y, n, spread) => {
+    for (let i = 0; i < n; i++) {
+      const a = -Math.PI / 2 + (Math.random() - .5) * spread, v = 7 + Math.random() * 9;
+      parts.push({x, y, vx:Math.cos(a) * v, vy:Math.sin(a) * v, w:6 + Math.random() * 6, h:8 + Math.random() * 8,
+        r:Math.random() * 6, vr:(Math.random() - .5) * .4, c:COLORS[i % COLORS.length], shape:Math.random() < .3 ? 'o' : 'r', life:0});
+    }
+  };
+  burst(W * .15, H, 70 * power, 1.1); burst(W * .85, H, 70 * power, 1.1);
+  setTimeout(() => burst(W / 2, H * .9, 90 * power, 1.6), 250);
+  let last = performance.now();
+  (function tick(now){
+    const dt = Math.min(2, (now - last) / 16.7); last = now;
+    ctx.clearRect(0, 0, W, H);
+    for (let i = parts.length - 1; i >= 0; i--) {
+      const p = parts[i];
+      p.vy += .25 * dt; p.vx *= .99; p.vy *= .99; p.x += p.vx * dt; p.y += p.vy * dt; p.r += p.vr * dt; p.life += dt;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.c;
+      if (p.shape === 'o') { ctx.beginPath(); ctx.arc(0, 0, p.w / 2, 0, 7); ctx.fill(); }
+      else { ctx.scale(1, Math.cos(p.life * .15)); ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); }
+      ctx.restore();
+      if (p.y > H + 40 || p.life > 400) parts.splice(i, 1);
+    }
+    if (parts.length) requestAnimationFrame(tick); else ctx.clearRect(0, 0, W, H);
+  })(last);
+}
+$('party').onclick = () => { confetti(1); if (reduceMotion) toast('<big>🎉 Hoera!</big>'); };
+
+/* ---------- Wat is nieuw sinds het vorige bezoek? ---------- */
+function readSeen(){ try { return new Set(JSON.parse(localStorage.getItem(SEEN_KEY) || '[]')); } catch (e) { return new Set(); } }
+function writeSeen(ids){ try { localStorage.setItem(SEEN_KEY, JSON.stringify(ids)); } catch (e) {} }
+
+async function lastUpdate(){
+  try {
+    const r = await fetch(`https://api.github.com/repos/${REPO}/commits?path=${FILE}&per_page=1`);
+    if (!r.ok) return;
+    const [c] = await r.json(); if (!c) return;
+    const d = new Date(c.commit.author.date);
+    const who = c.author?.login || c.commit.author.name;
+    $('updated').innerHTML = `Bijgewerkt ${d.toLocaleDateString('nl-NL', {day:'numeric', month:'long'})} door <b>${esc(who)}</b>`;
+  } catch (e) {}
+}
+
+(async () => {
+  let md;
+  try { md = await load(); }
+  catch (e) {
+    $('state').innerHTML = `<big>😕</big>De roadmap kon niet geladen worden.<br><a href="${BLOB_URL}">Bekijk hem op GitHub</a>`;
+    return;
+  }
+  const data = parse(md);
+  const seen = readSeen();
+  const doneIds = [...data.steps.filter(s => s.type === 'phase').flatMap(p => p.items), ...data.questions]
+    .filter(i => i.done).map(i => i.id);
+  data.steps.filter(s => s.type === 'gate' && s.done).forEach(g => doneIds.push('gate:' + g.letter));
+  const fresh = new Set(doneIds.filter(id => !seen.has(id)));
+
+  const finished = render(data, fresh);
+  lastUpdate();
+  writeSeen(doneIds);
+
+  const newPhases = finished.filter(p => p.items.some(i => fresh.has(i.id)));
+  const newGates = data.steps.filter(s => s.type === 'gate' && fresh.has('gate:' + s.letter));
+  setTimeout(() => {
+    if (newPhases.length) {
+      const p = newPhases[newPhases.length - 1];
+      confetti(1.4);
+      toast(`<big>Fase ${p.num} is klaar! 🎉</big>${esc(p.title)}: helemaal afgevinkt`, 6000);
+    } else if (newGates.length) {
+      confetti(1.2);
+      toast(`<big>Beslismoment ${newGates[0].letter} 🔓</big>De school heeft akkoord gegeven`, 6000);
+    } else if (fresh.size) {
+      confetti(.5);
+      toast(`<big>${fresh.size === 1 ? 'Nieuw vinkje! ✓' : fresh.size + ' nieuwe vinkjes! ✓'}</big>Lekker bezig`);
+    }
+  }, 700);
+})();
+</script>
+</body>
+</html>
