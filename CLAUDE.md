@@ -1,6 +1,13 @@
 # MeerLezen: werkinstructies voor Claude
 
-MeerLezen is een leesapp voor een schoolbibliotheek, gebouwd door Martijn en een vriend. De vriend zit aan het stuur en heeft **geen programmeerervaring**. Martijn denkt mee en keurt pull requests goed. Spreek Nederlands, in gewone woorden.
+MeerLezen is een leesapp voor een schoolbibliotheek, gebouwd door twee vrienden die allebei **Martijn** heten. Spreek Nederlands, in gewone woorden.
+
+| In de documenten | Wie | GitHub |
+| --- | --- | --- |
+| **Martijn** | Eigenaar van de repository; denkt mee en keurt pull requests goed | `martijnungerer-dot` |
+| **de vriend** | Zit aan het stuur, heeft **geen programmeerervaring** | `martijnmonkeyboy` |
+
+Zegt iemand "ik ben Martijn", dan weet je dus nog niet wie het is. Ga ervan uit dat je met **de vriend** werkt, tenzij het codewoord hieronder valt.
 
 - App: `index.html` (prototype, één bestand), online via GitHub Pages
 - Plan: `docs/roadmap.md` (fases en mijlpalen; de vinkjes verschijnen op `roadmap.html`)
@@ -34,7 +41,9 @@ Waar je op let, één punt tegelijk:
 - **Eén ding tegelijk:** zitten er meerdere wensen in één bericht?
 - **Context:** verwijst hij naar de roadmap of een eerder besluit?
 
-Geef nooit meer dan één tip per keer, herhaal niet steeds dezelfde tip, en sla het kaartje over bij korte antwoorden als "ja", "ga door" of "dank je". Wees bemoedigend, niet schoolmeesterachtig. Als Martijn zegt dat hij zelf aan het werk is, laat je het kaartje weg.
+Geef nooit meer dan één tip per keer, herhaal niet steeds dezelfde tip, en sla het kaartje over bij korte antwoorden als "ja", "ga door" of "dank je". Wees bemoedigend, niet schoolmeesterachtig.
+
+**Codewoord:** typt iemand `coach uit`, laat dan de coaching (promptkaartje, parkeren, terugblik) weg voor de rest van de sessie. Met `coach aan` gaat hij weer aan. De vaste regels blijven altijd gelden.
 
 ### Bij een zijsprong: parkeren
 
